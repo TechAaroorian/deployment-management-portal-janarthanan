@@ -163,10 +163,10 @@ const DeploymentCard = ({ deployment, onAdvance }: DeploymentCardProps) => {
   const nextStatus = nextStatusByStatus[deployment.status];
 
   return (
-    <Card className={`@container w-full min-w-0 rounded-xl border-l-4 shadow-sm ring-border ${priorityBorderClasses[deployment.priority]}`}>
-      <CardHeader className="gap-3">
+    <Card className={`@container w-full min-w-0 rounded-xl border-l-4 shadow-sm ring-border/80 transition-shadow duration-150 focus-within:ring-primary/50 motion-reduce:transition-none ${priorityBorderClasses[deployment.priority]}`}>
+      <CardHeader className="gap-3 px-5">
         <CardTitle>
-          <h2 className="wrap-break-word text-lg font-semibold">
+          <h2 className="wrap-break-word text-base leading-snug font-semibold tracking-tight">
             {deployment.application}
           </h2>
         </CardTitle>
@@ -179,9 +179,9 @@ const DeploymentCard = ({ deployment, onAdvance }: DeploymentCardProps) => {
           <Badge variant="secondary" className={`rounded-md duration-150 motion-reduce:transition-none ${statusBadgeClasses[deployment.status]}`} role="status" aria-live="polite">{deployment.status}</Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 px-5">
         <Separator />
-        <dl className="grid grid-cols-1 gap-4 @sm:grid-cols-2 [&_dt]:text-xs [&_dd]:mt-1">
+        <dl className="grid grid-cols-1 gap-x-4 gap-y-3 @xs:grid-cols-2 [&_dt]:text-xs [&_dt]:leading-relaxed [&_dd]:mt-1 [&_dd]:leading-relaxed">
           <div className="min-w-0">
             <dt className="flex items-center gap-2 text-muted-foreground"><UserRound aria-hidden="true" className="size-3.5 shrink-0" />Requested by</dt>
             <dd className="wrap-break-word font-medium">{deployment.requestedBy}</dd>
@@ -190,7 +190,7 @@ const DeploymentCard = ({ deployment, onAdvance }: DeploymentCardProps) => {
             <dt className="flex items-center gap-2 text-muted-foreground"><MapPin aria-hidden="true" className="size-3.5 shrink-0" />Region</dt>
             <dd className="wrap-break-word font-medium">{deployment.region}</dd>
           </div>
-          <div className="min-w-0">
+          <div className="col-span-full min-w-0">
             <dt className="text-muted-foreground">Priority</dt>
             <dd className="font-medium">{deployment.priority}</dd>
           </div>
@@ -208,11 +208,11 @@ const DeploymentCard = ({ deployment, onAdvance }: DeploymentCardProps) => {
           </div>
         </dl>
       </CardContent>
-      <CardFooter className="mt-auto bg-muted/60">
+      <CardFooter className="mt-auto bg-muted/35 px-5">
         <Button
           type="button"
           variant={nextStatus === null ? "outline" : "default"}
-          className={`min-h-11 w-full whitespace-normal shadow-none duration-150 ease-out enabled:active:brightness-90 motion-safe:enabled:active:scale-[0.98] motion-reduce:transition-none ${
+          className={`group min-h-11 w-full whitespace-normal shadow-none duration-150 ease-out enabled:active:brightness-90 motion-safe:enabled:active:scale-[0.98] motion-reduce:transition-none ${
             nextStatus === null
               ? ""
               : "bg-[#65468b] text-white hover:bg-[#65468b] hover:brightness-90 focus-visible:ring-[#65468b]/40"
@@ -225,7 +225,7 @@ const DeploymentCard = ({ deployment, onAdvance }: DeploymentCardProps) => {
           }}
         >
           {nextStatus === null ? "Deployment completed" : `Advance to ${nextStatus}`}
-          {nextStatus === null ? <Check aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}
+          {nextStatus === null ? <Check aria-hidden="true" /> : <ArrowRight aria-hidden="true" className="transition-transform duration-150 motion-safe:group-hover:translate-x-0.5 motion-safe:group-focus-visible:translate-x-0.5 motion-reduce:transition-none" />}
         </Button>
       </CardFooter>
     </Card>

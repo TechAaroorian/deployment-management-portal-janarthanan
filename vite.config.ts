@@ -15,6 +15,27 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/test/setup.ts',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'json-summary', 'lcov', 'cobertura'],
+      reportsDirectory: './coverage',
+      thresholds: {
+        statements: 95,
+        branches: 90,
+        functions: 95,
+        lines: 95,
+      },
+      include: ['src/**/*.{ts,tsx}'],
+      // Measure application behavior; omit tests, static fixtures, and supplied UI infrastructure.
+      exclude: [
+        '**/*.test.{ts,tsx}',
+        'src/test/**',
+        'src/components/ui/**',
+        'src/data/**',
+        'src/lib/**',
+        'src/main.tsx',
+      ],
+    },
   },
 })
 

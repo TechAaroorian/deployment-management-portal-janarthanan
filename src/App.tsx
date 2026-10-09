@@ -1,4 +1,4 @@
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ArrowRight, House, LayoutGrid, Menu, PanelsTopLeft, Search, X } from "lucide-react";
 import DeploymentCard, { type Deployment } from "./exercise/example1";
 import { useDeploymentQueryFilters } from "./hooks/useDeploymentQueryFilters";
@@ -43,7 +43,7 @@ function SearchExample() {
   const { search, setSearch, statusFilter, setStatusFilter, filteredDeployments } = useDeploymentQueryFilters(data, "#/example2");
 
   return (
-    <section className="space-y-6" aria-label="Deployment search">
+    <section className="space-y-4" aria-label="Deployment search">
       <DeploymentFilters search={search} setSearch={setSearch} statusFilter={statusFilter} setStatusFilter={setStatusFilter} filteredCount={filteredDeployments.length} totalCount={data.length} />
       {filteredDeployments.length === 0 ? (
         <p className="py-8 text-muted-foreground">No deployments match your search and status filter. Try another application name or select All statuses.</p>
@@ -65,9 +65,17 @@ const App = () => {
   const path = hash.split("?")[0];
   const example = examples.find((item) => item.path === path);
 
+  useEffect(() => {
+    document.title = `${example?.title ?? "Home"} | Deployment Queue`;
+  }, [example]);
+
   return (
-    <div className="min-h-screen bg-background text-foreground [--background:#eceaf0] [--foreground:#292630] [--card:#ffffff] [--card-foreground:#292630] [--muted:#eceaf0] [--muted-foreground:#625d6d] [--border:#d1ccd8] [--input:#d1ccd8] [--secondary:#eceaf0] [--secondary-foreground:#625d6d] [--accent:#eceaf0] [--accent-foreground:#292630] [--primary:#65468b] [--primary-foreground:#ffffff] [--ring:#65468b]">
-      <header className="sticky top-0 z-20 mb-8 w-full border-b border-border bg-card shadow-sm"
+    <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground [--background:#eceaf0] [--foreground:#292630] [--card:#ffffff] [--card-foreground:#292630] [--muted:#eceaf0] [--muted-foreground:#625d6d] [--border:#d1ccd8] [--input:#d1ccd8] [--secondary:#eceaf0] [--secondary-foreground:#625d6d] [--accent:#eceaf0] [--accent-foreground:#292630] [--primary:#65468b] [--primary-foreground:#ffffff] [--ring:#65468b]">
+      <button type="button" onClick={() => document.getElementById("main-content")?.focus()}
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:min-h-11 focus:rounded-md focus:bg-primary focus:px-4 focus:text-primary-foreground focus:outline-2 focus:outline-offset-2 focus:outline-primary">
+        Skip to content
+      </button>
+      <header className="relative z-20 w-full shrink-0 border-b border-border bg-card shadow-sm"
         onKeyDown={(event) => {
           if (event.key === "Escape" && menuOpen) {
             setMenuOpen(false);
@@ -76,7 +84,7 @@ const App = () => {
         }}>
       <div className="mx-auto max-w-screen-2xl px-4 py-3 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between gap-3 md:hidden">
-        <a href="#/" onClick={() => setMenuOpen(false)} className="inline-flex min-h-11 items-center gap-2 font-semibold text-primary">
+        <a href="#/" onClick={() => setMenuOpen(false)} className="inline-flex min-h-11 items-center gap-2 rounded-md font-semibold text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
           <LayoutGrid aria-hidden="true" className="size-5" />
           Deployment Queue
         </a>
@@ -93,26 +101,27 @@ const App = () => {
         {[{ path: "#/", title: "Home", icon: House }, ...examples].map((item) => (
           <a key={item.path} href={item.path} aria-current={path === item.path ? "page" : undefined}
             onClick={() => setMenuOpen(false)}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#65468b] aria-[current=page]:bg-primary aria-[current=page]:text-primary-foreground aria-[current=page]:font-semibold motion-reduce:transition-none">
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm text-muted-foreground transition-colors duration-150 hover:bg-muted/60 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#65468b] aria-[current=page]:bg-muted aria-[current=page]:text-primary aria-[current=page]:font-semibold motion-reduce:transition-none">
             <item.icon aria-hidden="true" className="size-4 shrink-0" />
             {item.title}
           </a>
         ))}
       </nav>
       </div>
-      <div className="border-t border-border bg-primary/10">
-      <div className="mx-auto max-w-screen-2xl px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
-        <h1 className="text-2xl font-semibold tracking-tight">{example?.title ?? (path === "#/" ? "Deployment Queue Exercises" : "Page not found")}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{example?.description ?? "Choose an exercise to explore its implementation."}</p>
-      </div>
-      </div>
       </header>
-    <main className="mx-auto max-w-screen-2xl px-4 pb-8 sm:px-6 lg:px-8">
+      <div key={path} className="min-h-0 flex-1 overflow-y-auto">
+      <div className="mb-4 border-b border-[#44404f] bg-[#30283f] text-[#f0ede8]">
+      <div className="mx-auto max-w-screen-2xl px-4 py-3 sm:px-6 lg:px-8">
+        <h1 className="text-lg leading-snug font-semibold tracking-tight sm:text-xl">{example?.title ?? (path === "#/" ? "Deployment Queue Exercises" : "Page not found")}</h1>
+        <p className="mt-1 text-sm leading-relaxed text-[#f0ede8]/75">{example?.description ?? "Choose an exercise to explore its implementation."}</p>
+      </div>
+      </div>
+    <main id="main-content" tabIndex={-1} className="mx-auto max-w-screen-2xl px-4 pb-8 outline-none duration-200 ease-out motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-1 sm:px-6 lg:px-8">
       {path === "#/" && (
         <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {examples.map((item) => (
             <li key={item.path}>
-              <Card className="h-full rounded-xl bg-card shadow-sm ring-border transition-shadow duration-150 focus-within:ring-primary/50 motion-reduce:transition-none">
+              <Card className="h-full rounded-xl bg-card shadow-sm ring-border/80 transition-shadow duration-150 focus-within:ring-primary/50 motion-reduce:transition-none">
                 <CardHeader className="gap-4">
                   <span className="flex size-11 items-center justify-center rounded-xl bg-muted text-primary">
                     <item.icon aria-hidden="true" className="size-5" />
@@ -121,7 +130,7 @@ const App = () => {
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col gap-6">
                   <p className="text-sm leading-relaxed text-muted-foreground">{item.description}</p>
-                  <a href={item.path} className="group mt-auto inline-flex min-h-11 items-center gap-2 self-start rounded-lg px-2 font-medium text-primary transition-colors duration-150 hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none">
+                  <a href={item.path} aria-label={`Open ${item.title}`} className="group mt-auto inline-flex min-h-11 items-center gap-2 self-start rounded-lg px-2 font-medium text-primary transition-colors duration-150 hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-reduce:transition-none">
                     Open exercise
                     <ArrowRight aria-hidden="true" className="size-4 shrink-0 transition-transform duration-150 motion-safe:group-hover:translate-x-0.5 motion-safe:group-focus-visible:translate-x-0.5 motion-reduce:transition-none" />
                   </a>
@@ -136,6 +145,7 @@ const App = () => {
       {path === "#/example3" && <Example3 />}
       {!example && path !== "#/" && <a href="#/" className="text-[#65468b] underline">Return home</a>}
     </main>
+    </div>
     </div>
   );
 };

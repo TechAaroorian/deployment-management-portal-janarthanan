@@ -157,7 +157,7 @@ export default function Example3() {
   }
 
   return (
-    <section aria-label="Deployment queue" className="space-y-6">
+    <section aria-label="Deployment queue" className="space-y-4">
       <DeploymentFilters search={search} setSearch={setSearch} statusFilter={statusFilter} setStatusFilter={setStatusFilter} filteredCount={filteredDeployments.length} totalCount={deployments.length} showTotal />
       {deployments.length === 0 ? (
         <p role="status" className="rounded-xl border border-border bg-card p-6 text-muted-foreground">No deployments are available.</p>
