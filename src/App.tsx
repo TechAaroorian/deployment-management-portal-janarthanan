@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ArrowRight, House, LayoutGrid, Menu, PanelsTopLeft, Search, X } from "lucide-react";
-import DeploymentCard, { type Deployment } from "./exercise/example1";
-import { useDeploymentQueryFilters } from "./hooks/useDeploymentQueryFilters";
-import { DeploymentFilters } from "./components/DeploymentFilters";
-import Example3 from "./exercise/example3";
-import { data } from "./data/MOCK_DATA";
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
 import { Button } from "./components/ui/button";
+
+const CardExample = lazy(() => import("./pages/CardExample"));
+const SearchExample = lazy(() => import("./pages/SearchExample"));
+const Example3 = lazy(() => import("./exercise/example3"));
 
 const examples = [
   { path: "#/example1", icon: PanelsTopLeft, title: "Exercise 1 — Deployment Card", description: "Review deployment details and advance its status." },
@@ -21,41 +20,6 @@ function subscribeToHash(callback: () => void) {
 
 function getHash() {
   return window.location.hash || "#/";
-}
-
-function CardExample() {
-  const [deployment, setDeployment] = useState<Deployment>(() => ({ ...data[0] }));
-
-  function handleAdvance(id: string, nextStatus: Deployment["status"]) {
-    setDeployment((current) =>
-      current.id === id ? { ...current, status: nextStatus } : current,
-    );
-  }
-
-  return (
-      <div className="w-full max-w-md">
-        <DeploymentCard deployment={deployment} onAdvance={handleAdvance} />
-      </div>
-  );
-}
-
-function SearchExample() {
-  const { search, setSearch, statusFilter, setStatusFilter, filteredDeployments } = useDeploymentQueryFilters(data, "#/example2");
-
-  return (
-    <section className="space-y-4" aria-label="Deployment search">
-      <DeploymentFilters search={search} setSearch={setSearch} statusFilter={statusFilter} setStatusFilter={setStatusFilter} filteredCount={filteredDeployments.length} totalCount={data.length} />
-      {filteredDeployments.length === 0 ? (
-        <p className="py-8 text-muted-foreground">No deployments match your search and status filter. Try another application name or select All statuses.</p>
-      ) : (
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-          {filteredDeployments.map((deployment) => (
-            <DeploymentCard key={deployment.id} deployment={deployment} />
-          ))}
-        </div>
-      )}
-    </section>
-  );
 }
 
 const App = () => {
@@ -99,11 +63,12 @@ const App = () => {
       <nav id="exercise-navigation" aria-label="Exercise navigation"
         className={`${menuOpen ? "flex" : "hidden"} mt-3 max-h-[40dvh] flex-col gap-1 overflow-y-auto md:mt-0 md:flex md:max-h-none md:flex-row md:flex-wrap md:gap-3 md:overflow-visible`}>
         {[{ path: "#/", title: "Home", icon: House }, ...examples].map((item) => (
-          <a key={item.path} href={item.path} aria-current={path === item.path ? "page" : undefined}
+          <a key={item.path} href={item.path} aria-label={item.title} aria-current={path === item.path ? "page" : undefined}
             onClick={() => setMenuOpen(false)}
             className="inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm text-muted-foreground transition-colors duration-150 hover:bg-muted/60 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#65468b] aria-[current=page]:bg-muted aria-[current=page]:text-primary aria-[current=page]:font-semibold motion-reduce:transition-none">
             <item.icon aria-hidden="true" className="size-4 shrink-0" />
-            {item.title}
+            <span className="md:hidden lg:inline">{item.title}</span>
+            <span className="hidden md:inline lg:hidden">{item.title.split(" — ").at(-1)}</span>
           </a>
         ))}
       </nav>
@@ -140,9 +105,11 @@ const App = () => {
           ))}
         </ul>
       )}
+      <Suspense fallback={<p role="status" className="py-6 text-muted-foreground">Loading exercise…</p>}>
       {path === "#/example1" && <CardExample />}
       {path === "#/example2" && <SearchExample />}
       {path === "#/example3" && <Example3 />}
+      </Suspense>
       {!example && path !== "#/" && <a href="#/" className="text-[#65468b] underline">Return home</a>}
     </main>
     </div>

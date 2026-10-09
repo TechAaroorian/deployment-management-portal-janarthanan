@@ -113,22 +113,25 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertCircle, LoaderCircle, RefreshCw } from "lucide-react";
 import { getDeployments } from "../api/diploymentApi";
 import { Button } from "@/components/ui/button";
-import DeploymentCard, { type Deployment } from "./example1";
+import { type Deployment } from "./example1";
 import { DeploymentFilters } from "../components/DeploymentFilters";
 import { useDeploymentQueryFilters } from "../hooks/useDeploymentQueryFilters";
 
+import { DeploymentGrid } from "../components/DeploymentGrid";
+
+const deploymentQueryKey = ["deployments"] as const;
 const emptyDeployments: Deployment[] = [];
 
 export default function Example3() {
   const queryClient = useQueryClient();
   const { data: deployments = emptyDeployments, isPending, isError, refetch } = useQuery({
-    queryKey: ["deployments"],
+    queryKey: deploymentQueryKey,
     queryFn: getDeployments,
   });
   const { search, setSearch, statusFilter, setStatusFilter, filteredDeployments } = useDeploymentQueryFilters(deployments, "#/example3");
 
   function handleAdvance(id: string, nextStatus: Deployment["status"]) {
-    queryClient.setQueryData<Deployment[]>(["deployments"], (current) =>
+    queryClient.setQueryData<Deployment[]>(deploymentQueryKey, (current) =>
       current?.map((deployment) => deployment.id === id ? { ...deployment, status: nextStatus } : deployment),
     );
   }
@@ -164,9 +167,7 @@ export default function Example3() {
       ) : filteredDeployments.length === 0 ? (
         <p role="status" className="rounded-xl border border-border bg-card p-6 text-muted-foreground">No deployments match your search and status filter. Try another application name or select All statuses.</p>
       ) : (
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-          {filteredDeployments.map((deployment) => <DeploymentCard key={deployment.id} deployment={deployment} onAdvance={handleAdvance} />)}
-        </div>
+        <DeploymentGrid deployments={filteredDeployments} onAdvance={handleAdvance} />
       )}
     </section>
   );

@@ -34,7 +34,9 @@ Example shareable URL: `#/example3?search=customer&status=Pending`.
 
 ## Architecture and assumptions
 
-`src/exercise/example1.tsx` exports the reusable card and deployment interface. `example2.tsx` contains the filter hook. `example3.tsx` combines React Query data with the shared controls in `src/components/DeploymentFilters.tsx` and URL synchronization in `src/hooks/useDeploymentQueryFilters.ts`.
+See [Practices and conventions](docs/PRACTICES.md) for the component boundaries, React and TypeScript patterns, code splitting, Tailwind conventions, accessibility measures, and testing choices used in this solution.
+
+`src/exercise/example1.tsx` exports the reusable card and deployment interface. `example2.tsx` contains the filter hook. `example3.tsx` combines React Query data with the shared controls in `src/components/DeploymentFilters.tsx` and URL synchronization in `src/hooks/useDeploymentQueryFilters.ts`. Search and queue pages reuse `src/components/DeploymentGrid.tsx` for the responsive card layout. Exercise pages load on demand through module-level `React.lazy` imports with a `Suspense` loading state; Vite creates the page and shared component chunks automatically. The card and search demonstrations live in `src/pages/`.
 
 The supplied `getDeployments()` simulates a one-second API request and returns the mock data; it does not make an HTTP request. Filtering runs locally after fetching. Status actions update the React Query cache without changing the source fixtures. Changes survive navigation while cached, but do not persist after a full reload or API refetch.
 
