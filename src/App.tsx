@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { ArrowRight, ChevronDown, House, LayoutGrid, Menu, PanelsTopLeft, Search, X } from "lucide-react";
+import { useRef, useState, useSyncExternalStore } from "react";
+import { ArrowRight, House, LayoutGrid, Menu, PanelsTopLeft, Search, X } from "lucide-react";
 import DeploymentCard, { type Deployment } from "./exercise/example1";
-import { statusFilterOptions, useDeploymentFilters } from "./exercise/example2";
+import { useDeploymentQueryFilters } from "./hooks/useDeploymentQueryFilters";
+import { DeploymentFilters } from "./components/DeploymentFilters";
 import Example3 from "./exercise/example3";
 import { data } from "./data/MOCK_DATA";
 import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
@@ -10,7 +11,7 @@ import { Button } from "./components/ui/button";
 const examples = [
   { path: "#/example1", icon: PanelsTopLeft, title: "Exercise 1 — Deployment Card", description: "Review deployment details and advance its status." },
   { path: "#/example2", icon: Search, title: "Exercise 2 — Deployment Search", description: "Search deployments by application name." },
-  { path: "#/example3", icon: LayoutGrid, title: "Exercise 3 — Deployment Queue", description: "Full integration — implementation pending." },
+  { path: "#/example3", icon: LayoutGrid, title: "Exercise 3 — Deployment Queue", description: "Monitor deployments loaded from the mock API." },
 ];
 
 function subscribeToHash(callback: () => void) {
@@ -39,73 +40,11 @@ function CardExample() {
 }
 
 function SearchExample() {
-  const params = new URLSearchParams(window.location.hash.split("?")[1] ?? "");
-  const initialStatus = statusFilterOptions.find((status) => status === params.get("status")) ?? "All";
-  const { search, setSearch, statusFilter, setStatusFilter, filteredDeployments } = useDeploymentFilters(data, {
-    search: params.get("search") ?? "",
-    statusFilter: initialStatus,
-  });
-
-  useEffect(() => {
-    function restoreFilters() {
-      if (window.location.hash.split("?")[0] !== "#/example2") return;
-      const query = new URLSearchParams(window.location.hash.split("?")[1] ?? "");
-      setSearch(query.get("search") ?? "");
-      setStatusFilter(statusFilterOptions.find((status) => status === query.get("status")) ?? "All");
-    }
-    window.addEventListener("hashchange", restoreFilters);
-    return () => window.removeEventListener("hashchange", restoreFilters);
-  }, [setSearch, setStatusFilter]);
-
-  useEffect(() => {
-    const query = new URLSearchParams();
-    if (search) query.set("search", search);
-    if (statusFilter !== "All") query.set("status", statusFilter);
-    const url = new URL(window.location.href);
-    url.hash = `#/example2${query.size ? `?${query.toString()}` : ""}`;
-    window.history.replaceState(window.history.state, "", url);
-  }, [search, statusFilter]);
+  const { search, setSearch, statusFilter, setStatusFilter, filteredDeployments } = useDeploymentQueryFilters(data, "#/example2");
 
   return (
     <section className="space-y-6" aria-label="Deployment search">
-      <div className="space-y-2 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-      <div className="w-full max-w-md space-y-2">
-        <label htmlFor="deployment-search" className="block text-sm font-medium">Application name</label>
-        <div className="group relative">
-        <Search aria-hidden="true" className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground transition-colors duration-150 group-focus-within:text-primary motion-reduce:transition-none" />
-        <input
-          id="deployment-search"
-          type="search"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search applications"
-          className="min-h-11 w-full rounded-md border border-input bg-background pr-3 pl-10 text-sm outline-none transition-[background-color,border-color,box-shadow] duration-150 ease-out hover:border-primary/50 focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary/25 motion-reduce:transition-none"
-        />
-        </div>
-      </div>
-      <div className="w-full space-y-2 sm:w-48">
-        <label htmlFor="deployment-status" className="block text-sm font-medium">Status</label>
-        <div className="group relative">
-        <select
-          id="deployment-status"
-          value={statusFilter}
-          onChange={(event) => {
-            const selected = statusFilterOptions.find((option) => option === event.target.value);
-            if (selected) setStatusFilter(selected);
-          }}
-          className="min-h-11 w-full appearance-none rounded-md border border-input bg-background pr-10 pl-3 text-sm outline-none transition-[background-color,border-color,box-shadow] duration-150 ease-out hover:border-primary/50 focus:border-primary focus:bg-card focus:ring-2 focus:ring-primary/25 motion-reduce:transition-none"
-        >
-          {statusFilterOptions.map((status) => <option key={status} value={status}>{status}</option>)}
-        </select>
-        <ChevronDown aria-hidden="true" className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted-foreground transition-colors duration-150 group-focus-within:text-primary motion-reduce:transition-none" />
-        </div>
-      </div>
-      </div>
-        <p className="text-sm text-muted-foreground" role="status">
-          {filteredDeployments.length} of {data.length} deployments
-        </p>
-      </div>
+      <DeploymentFilters search={search} setSearch={setSearch} statusFilter={statusFilter} setStatusFilter={setStatusFilter} filteredCount={filteredDeployments.length} totalCount={data.length} />
       {filteredDeployments.length === 0 ? (
         <p className="py-8 text-muted-foreground">No deployments match your search and status filter. Try another application name or select All statuses.</p>
       ) : (

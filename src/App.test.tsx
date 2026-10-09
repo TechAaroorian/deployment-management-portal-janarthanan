@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import App from "./App";
 
@@ -40,7 +40,7 @@ describe("search URL synchronization", () => {
     expect(screen.getByText("10 of 10 deployments")).toBeInTheDocument();
   });
 
-  it("restores filters after hash navigation", () => {
+  it("restores filters after hash navigation", async () => {
     window.history.replaceState(null, "", "#/example2?search=customer");
     render(<App />);
     act(() => {
@@ -49,7 +49,7 @@ describe("search URL synchronization", () => {
     });
     expect(screen.getByRole("searchbox", { name: "Application name" })).toHaveValue("Payments");
     expect(screen.getByRole("combobox", { name: "Status" })).toHaveValue("In Progress");
-    expect(screen.getByText("1 of 10 deployments")).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText("1 of 10 deployments")).toBeInTheDocument());
   });
 });
 

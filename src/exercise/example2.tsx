@@ -80,7 +80,7 @@
  *
  * ============================================================================
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export const statusFilterOptions = ["All", "Pending", "In Progress", "Completed", "Failed"] as const;
 export type StatusFilter = (typeof statusFilterOptions)[number];
@@ -91,21 +91,30 @@ export function useDeploymentFilters<T extends { application: string; status?: s
 ) {
   const [search, setSearch] = useState(initialFilters.search ?? "");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(initialFilters.statusFilter ?? "All");
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+  // Optional for this small mock dataset; demonstrates debounced search with
+  // immediate input updates and timer cleanup for rapid typing or unmounting.
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const filteredDeployments = useMemo(() => {
-    const query = search.trim().toLowerCase();
+    const query = debouncedSearch.trim().toLowerCase();
 
     return deployments.filter((deployment) =>
       deployment.application.toLowerCase().includes(query) &&
       (statusFilter === "All" || deployment.status === statusFilter),
     );
-  }, [deployments, search, statusFilter]);
+  }, [deployments, debouncedSearch, statusFilter]);
 
   return {
     search,
     setSearch,
     statusFilter,
     setStatusFilter,
+    isSearchPending: search !== debouncedSearch,
     filteredDeployments,
   };
 }

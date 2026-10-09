@@ -109,28 +109,65 @@
  * ============================================================================
  */
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { AlertCircle, LoaderCircle, RefreshCw } from "lucide-react";
+import { getDeployments } from "../api/diploymentApi";
+import { Button } from "@/components/ui/button";
+import DeploymentCard, { type Deployment } from "./example1";
+import { DeploymentFilters } from "../components/DeploymentFilters";
+import { useDeploymentQueryFilters } from "../hooks/useDeploymentQueryFilters";
 
-/**
- * TODO
- *
- * Build the Deployment Queue page.
- *
- * Expected flow:
- *
- * React Query
- *        ↓
- * Deployment Data
- *        ↓
- * useDeploymentSearch()
- *        ↓
- * DeploymentCard[]
- */
+const emptyDeployments: Deployment[] = [];
 
 export default function Example3() {
- // This is a placeholder component to demonstrate the usage of the useQuery hook.
+  const queryClient = useQueryClient();
+  const { data: deployments = emptyDeployments, isPending, isError, refetch } = useQuery({
+    queryKey: ["deployments"],
+    queryFn: getDeployments,
+  });
+  const { search, setSearch, statusFilter, setStatusFilter, filteredDeployments } = useDeploymentQueryFilters(deployments, "#/example3");
 
-  return <div className="container mx-auto p-6">
-    // You can use the useQuery hook to fetch deployments and display them using the DeploymentCard component.
-  </div>;
+  function handleAdvance(id: string, nextStatus: Deployment["status"]) {
+    queryClient.setQueryData<Deployment[]>(["deployments"], (current) =>
+      current?.map((deployment) => deployment.id === id ? { ...deployment, status: nextStatus } : deployment),
+    );
+  }
+
+  if (isPending) {
+    return (
+      <div role="status" className="flex items-center gap-3 rounded-xl border border-border bg-card p-6 text-muted-foreground shadow-sm">
+        <LoaderCircle aria-hidden="true" className="size-5 motion-safe:animate-spin" />
+        Loading deployments…
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div role="alert" className="space-y-4 rounded-xl border border-[#a33030]/30 bg-[#fceeee] p-6">
+        <p className="flex items-center gap-2 font-medium text-[#a33030]">
+          <AlertCircle aria-hidden="true" className="size-5 shrink-0" />
+          Unable to load deployments. Please try again.
+        </p>
+        <Button type="button" variant="outline" onClick={() => void refetch()} className="min-h-11 motion-reduce:transition-none">
+          <RefreshCw aria-hidden="true" />Retry
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <section aria-label="Deployment queue" className="space-y-6">
+      <DeploymentFilters search={search} setSearch={setSearch} statusFilter={statusFilter} setStatusFilter={setStatusFilter} filteredCount={filteredDeployments.length} totalCount={deployments.length} showTotal />
+      {deployments.length === 0 ? (
+        <p role="status" className="rounded-xl border border-border bg-card p-6 text-muted-foreground">No deployments are available.</p>
+      ) : filteredDeployments.length === 0 ? (
+        <p role="status" className="rounded-xl border border-border bg-card p-6 text-muted-foreground">No deployments match your search and status filter. Try another application name or select All statuses.</p>
+      ) : (
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+          {filteredDeployments.map((deployment) => <DeploymentCard key={deployment.id} deployment={deployment} onAdvance={handleAdvance} />)}
+        </div>
+      )}
+    </section>
+  );
 }
