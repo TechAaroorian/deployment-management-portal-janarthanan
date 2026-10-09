@@ -110,6 +110,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ArrowRight, CalendarClock, Check, Clock, MapPin, UserRound } from "lucide-react";
 
 export interface Deployment {
   id: string;
@@ -152,11 +153,17 @@ const nextStatusByStatus: Record<Deployment["status"], Deployment["status"] | nu
   Completed: null,
 };
 
+const statusBadgeClasses: Record<Deployment["status"], string> = {
+  Pending: "bg-[#fef3c7] text-[#8b4c08]",
+  "In Progress": "bg-[#eceaf0] text-[#65468b]",
+  Completed: "bg-[#e8f3e8] text-[#27613d]",
+};
+
 const DeploymentCard = ({ deployment, onAdvance }: DeploymentCardProps) => {
   const nextStatus = nextStatusByStatus[deployment.status];
 
   return (
-    <Card className={`@container w-full min-w-0 rounded-md border-l-4 shadow-none ${priorityBorderClasses[deployment.priority]}`}>
+    <Card className={`@container w-full min-w-0 rounded-xl border-l-4 shadow-sm ring-border ${priorityBorderClasses[deployment.priority]}`}>
       <CardHeader className="gap-3">
         <CardTitle>
           <h2 className="wrap-break-word text-lg font-semibold">
@@ -168,19 +175,19 @@ const DeploymentCard = ({ deployment, onAdvance }: DeploymentCardProps) => {
           <span>{deployment.version}</span>
         </CardDescription>
         <div className="flex flex-wrap gap-2">
-          <Badge variant="outline" className="rounded-sm">{deployment.environment}</Badge>
-          <Badge variant="secondary" className="rounded-sm" role="status" aria-live="polite">{deployment.status}</Badge>
+          <Badge variant="outline" className="rounded-md">{deployment.environment}</Badge>
+          <Badge variant="secondary" className={`rounded-md duration-150 motion-reduce:transition-none ${statusBadgeClasses[deployment.status]}`} role="status" aria-live="polite">{deployment.status}</Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <Separator />
         <dl className="grid grid-cols-1 gap-4 @sm:grid-cols-2 [&_dt]:text-xs [&_dd]:mt-1">
           <div className="min-w-0">
-            <dt className="text-muted-foreground">Requested by</dt>
+            <dt className="flex items-center gap-2 text-muted-foreground"><UserRound aria-hidden="true" className="size-3.5 shrink-0" />Requested by</dt>
             <dd className="wrap-break-word font-medium">{deployment.requestedBy}</dd>
           </div>
           <div className="min-w-0">
-            <dt className="text-muted-foreground">Region</dt>
+            <dt className="flex items-center gap-2 text-muted-foreground"><MapPin aria-hidden="true" className="size-3.5 shrink-0" />Region</dt>
             <dd className="wrap-break-word font-medium">{deployment.region}</dd>
           </div>
           <div className="min-w-0">
@@ -188,20 +195,20 @@ const DeploymentCard = ({ deployment, onAdvance }: DeploymentCardProps) => {
             <dd className="font-medium">{deployment.priority}</dd>
           </div>
           <div className="col-span-full min-w-0">
-            <dt className="text-muted-foreground">Requested at</dt>
+            <dt className="flex items-center gap-2 text-muted-foreground"><Clock aria-hidden="true" className="size-3.5 shrink-0" />Requested at</dt>
             <dd className="wrap-break-word font-medium">
               <time dateTime={deployment.requestedAt}>{formatDate(deployment.requestedAt)}</time>
             </dd>
           </div>
           <div className="col-span-full min-w-0">
-            <dt className="text-muted-foreground">Scheduled at</dt>
+            <dt className="flex items-center gap-2 text-muted-foreground"><CalendarClock aria-hidden="true" className="size-3.5 shrink-0" />Scheduled at</dt>
             <dd className="wrap-break-word font-medium">
               <time dateTime={deployment.scheduledAt}>{formatDate(deployment.scheduledAt)}</time>
             </dd>
           </div>
         </dl>
       </CardContent>
-      <CardFooter className="mt-auto">
+      <CardFooter className="mt-auto bg-muted/60">
         <Button
           type="button"
           variant={nextStatus === null ? "outline" : "default"}
@@ -218,6 +225,7 @@ const DeploymentCard = ({ deployment, onAdvance }: DeploymentCardProps) => {
           }}
         >
           {nextStatus === null ? "Deployment completed" : `Advance to ${nextStatus}`}
+          {nextStatus === null ? <Check aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}
         </Button>
       </CardFooter>
     </Card>
