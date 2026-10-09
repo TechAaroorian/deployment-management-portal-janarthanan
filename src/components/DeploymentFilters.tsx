@@ -2,6 +2,7 @@ import { useId, useState } from "react";
 import { ChevronDown, LayoutGrid, Search, SlidersHorizontal } from "lucide-react";
 import { statusFilterOptions, type StatusFilter } from "../exercise/example2";
 import { Button } from "./ui/button";
+import { HelpTooltip } from "./HelpTooltip";
 
 interface DeploymentFiltersProps {
   search: string;
@@ -54,7 +55,12 @@ export function DeploymentFilters({ search, setSearch, statusFilter, setStatusFi
         </div>
       </div>
       <div className={`w-full space-y-2 sm:w-48 sm:shrink-0 ${expanded ? "duration-150 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-1" : ""}`}>
-        <label htmlFor={statusId} className="block text-xs font-medium text-muted-foreground">Status</label>
+        <div className="flex h-4 items-center justify-between gap-2">
+          <label htmlFor={statusId} className="block text-xs font-medium text-muted-foreground">Status</label>
+          <HelpTooltip label="About status filtering">
+            Status and application search work together. All includes every status. Failed is required by the assessment, but the supplied mock data contains no failed deployments.
+          </HelpTooltip>
+        </div>
         <div className="group relative">
         <select
           id={statusId}

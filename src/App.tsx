@@ -36,7 +36,7 @@ const App = () => {
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-background text-foreground [--background:#eceaf0] [--foreground:#292630] [--card:#ffffff] [--card-foreground:#292630] [--muted:#eceaf0] [--muted-foreground:#625d6d] [--border:#d1ccd8] [--input:#d1ccd8] [--secondary:#eceaf0] [--secondary-foreground:#625d6d] [--accent:#eceaf0] [--accent-foreground:#292630] [--primary:#65468b] [--primary-foreground:#ffffff] [--ring:#65468b]">
       <button type="button" onClick={() => document.getElementById("main-content")?.focus()}
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:min-h-11 focus:rounded-md focus:bg-primary focus:px-4 focus:text-primary-foreground focus:outline-2 focus:outline-offset-2 focus:outline-primary">
+        className="sr-only cursor-pointer focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:min-h-11 focus:rounded-md focus:bg-primary focus:px-4 focus:text-primary-foreground focus:outline-2 focus:outline-offset-2 focus:outline-primary">
         Skip to content
       </button>
       <header className="relative z-20 w-full shrink-0 border-b border-border bg-card shadow-sm"

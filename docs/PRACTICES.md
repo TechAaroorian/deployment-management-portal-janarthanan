@@ -51,6 +51,8 @@ The application uses labeled native inputs and selects, semantic headings, descr
 
 Navigation identifies the current page. Mobile controls expose their expanded state and controlled region; Escape closes the navigation and restores focus. A skip control focuses the main content. Focus indicators and minimum control heights support keyboard and touch interaction.
 
+Shared help tooltips explain disabled demonstration actions, status filtering, and temporary status changes. Essential limitations remain visible as text. Tooltip triggers can receive keyboard focus, and Escape dismisses the tooltip. These use the existing Base UI dependency and Tailwind styling.
+
 Loading states and result counts use status announcements, and request errors use an alert with a retry action. Status and priority remain readable as text alongside their colors.
 
 These measures have been reviewed in code and tests. A complete browser, zoom/reflow, and screen-reader audit is still required before claiming WCAG conformance.

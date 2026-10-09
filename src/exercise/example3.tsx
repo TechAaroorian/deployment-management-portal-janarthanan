@@ -118,6 +118,7 @@ import { DeploymentFilters } from "../components/DeploymentFilters";
 import { useDeploymentQueryFilters } from "../hooks/useDeploymentQueryFilters";
 
 import { DeploymentGrid } from "../components/DeploymentGrid";
+import { HelpTooltip } from "../components/HelpTooltip";
 
 const deploymentQueryKey = ["deployments"] as const;
 const emptyDeployments: Deployment[] = [];
@@ -162,6 +163,12 @@ export default function Example3() {
   return (
     <section aria-label="Deployment queue" className="space-y-4">
       <DeploymentFilters search={search} setSearch={setSearch} statusFilter={statusFilter} setStatusFilter={setStatusFilter} filteredCount={filteredDeployments.length} totalCount={deployments.length} showTotal />
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <p>Status changes are temporary in this mock queue.</p>
+        <HelpTooltip label="About queue status changes">
+          Actions update the React Query cache, not a backend. Changes survive navigation while cached, but reset after a full reload or API refetch. Advancing a deployment may remove it from the current status filter.
+        </HelpTooltip>
+      </div>
       {deployments.length === 0 ? (
         <p role="status" className="rounded-xl border border-border bg-card p-6 text-muted-foreground">No deployments are available.</p>
       ) : filteredDeployments.length === 0 ? (
