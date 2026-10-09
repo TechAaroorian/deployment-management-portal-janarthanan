@@ -1,4 +1,6 @@
-export const data =  
+import type { Deployment } from "../exercise/example1";
+
+export const data: Deployment[] =
   [
     {
       "id": "DEP-1001",

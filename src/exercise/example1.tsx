@@ -111,8 +111,117 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-const DeploymentCard = () => {
-  return <div>DeploymentCard</div>;
+export interface Deployment {
+  id: string;
+  application: string;
+  version: string;
+  environment: "Production" | "QA" | "Development" | "Staging";
+  status: "Pending" | "In Progress" | "Completed";
+  requestedBy: string;
+  requestedAt: string;
+  scheduledAt: string;
+  region: string;
+  priority: "Low" | "Medium" | "High" | "Critical";
+}
+
+interface DeploymentCardProps {
+  deployment: Deployment;
+  onAdvance?: (id: Deployment["id"], nextStatus: Deployment["status"]) => void;
+}
+
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+  dateStyle: "medium",
+  timeStyle: "short",
+  timeZone: "UTC",
+});
+
+function formatDate(value: string) {
+  return `${dateFormatter.format(new Date(value))} UTC`;
+}
+
+const priorityBorderClasses: Record<Deployment["priority"], string> = {
+  Low: "border-l-stone-400",
+  Medium: "border-l-slate-500",
+  High: "border-l-amber-700",
+  Critical: "border-l-red-800",
+};
+
+const nextStatusByStatus: Record<Deployment["status"], Deployment["status"] | null> = {
+  Pending: "In Progress",
+  "In Progress": "Completed",
+  Completed: null,
+};
+
+const DeploymentCard = ({ deployment, onAdvance }: DeploymentCardProps) => {
+  const nextStatus = nextStatusByStatus[deployment.status];
+
+  return (
+    <Card className={`@container w-full min-w-0 rounded-md border-l-4 shadow-none ${priorityBorderClasses[deployment.priority]}`}>
+      <CardHeader className="gap-3">
+        <CardTitle>
+          <h2 className="wrap-break-word text-lg font-semibold">
+            {deployment.application}
+          </h2>
+        </CardTitle>
+        <CardDescription className="flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs">
+          <span>{deployment.id}</span>
+          <span>{deployment.version}</span>
+        </CardDescription>
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="outline" className="rounded-sm">{deployment.environment}</Badge>
+          <Badge variant="secondary" className="rounded-sm" role="status" aria-live="polite">{deployment.status}</Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Separator />
+        <dl className="grid grid-cols-1 gap-4 @sm:grid-cols-2 [&_dt]:text-xs [&_dd]:mt-1">
+          <div className="min-w-0">
+            <dt className="text-muted-foreground">Requested by</dt>
+            <dd className="wrap-break-word font-medium">{deployment.requestedBy}</dd>
+          </div>
+          <div className="min-w-0">
+            <dt className="text-muted-foreground">Region</dt>
+            <dd className="wrap-break-word font-medium">{deployment.region}</dd>
+          </div>
+          <div className="min-w-0">
+            <dt className="text-muted-foreground">Priority</dt>
+            <dd className="font-medium">{deployment.priority}</dd>
+          </div>
+          <div className="col-span-full min-w-0">
+            <dt className="text-muted-foreground">Requested at</dt>
+            <dd className="wrap-break-word font-medium">
+              <time dateTime={deployment.requestedAt}>{formatDate(deployment.requestedAt)}</time>
+            </dd>
+          </div>
+          <div className="col-span-full min-w-0">
+            <dt className="text-muted-foreground">Scheduled at</dt>
+            <dd className="wrap-break-word font-medium">
+              <time dateTime={deployment.scheduledAt}>{formatDate(deployment.scheduledAt)}</time>
+            </dd>
+          </div>
+        </dl>
+      </CardContent>
+      <CardFooter className="mt-auto">
+        <Button
+          type="button"
+          variant={nextStatus === null ? "outline" : "default"}
+          className={`min-h-11 w-full whitespace-normal shadow-none duration-150 ease-out enabled:active:brightness-90 motion-safe:enabled:active:scale-[0.98] motion-reduce:transition-none ${
+            nextStatus === null
+              ? ""
+              : "bg-[#65468b] text-white hover:bg-[#65468b] hover:brightness-90 focus-visible:ring-[#65468b]/40"
+          }`}
+          disabled={nextStatus === null || !onAdvance}
+          onClick={() => {
+            if (nextStatus !== null) {
+              onAdvance?.(deployment.id, nextStatus);
+            }
+          }}
+        >
+          {nextStatus === null ? "Deployment completed" : `Advance to ${nextStatus}`}
+        </Button>
+      </CardFooter>
+    </Card>
+  );
 };
 
 export default DeploymentCard;
